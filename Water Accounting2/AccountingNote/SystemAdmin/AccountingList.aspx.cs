@@ -1,4 +1,5 @@
 ﻿using AccountingNote.DBSouse;
+using AuthManager;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,23 +15,23 @@ namespace AccountingNote.SystemAdmin
 	{
 		protected void Page_Load(object sender, EventArgs e)
 		{
-			if (this.Session["UserLoginInfo"] == null)
-			{
-				Response.Redirect("/Login.aspx");
-			}
-
-			string account = this.Session["UserLoginInfo"] as string;
-			var dr = UserInfoManager.GetUserInfoByAccount(account);
-
-			if (dr == null)
+			if (!AuthManagers.IsLogined())
 			{
 				Response.Redirect("/Login.aspx");
 				return;
 			}
+			UserInfoModel currentUser = AuthManagers.GetCurrentUser();
+
 			//string account = this.Session["UserLoginInfo"] as string;
+			//DataRow dr = UserInfoManager.GetUserInfoByAccount(account);
+			if (currentUser == null)
+			{
+				this.Session["UserLoginInfo"] = null;
+				Response.Redirect("/Login.aspx");
+				return;
+			}
 
-			var dt = AccountingManager.GetAccountingList(dr["ID"].ToString());
-
+			DataTable dt = AccountingManager.GetAccountingList(currentUser.ID);
 			if (dt.Rows.Count > 0)
 			{
 				this.gvAccountingList.DataSource = dt;

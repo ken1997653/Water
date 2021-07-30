@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using AuthManager;
 
 namespace AccountingNote.SystemAdmin
 {
@@ -13,27 +14,34 @@ namespace AccountingNote.SystemAdmin
 	{
 		protected void Page_Load(object sender, EventArgs e)
 		{
-			if (this.Session["UserLoginInfo"] == null)
+			if (!this.IsPostBack)
 			{
-				Response.Redirect("/Login.aspx");
-				return;
+				if (!AuthManagers.IsLogined())
+				{
+					Response.Redirect("/Login.aspx");
+					return;
+				}
+				UserInfoModel currentUser = AuthManagers.GetCurrentUser();
+
+				//string account = this.Session["UserLoginInfo"] as string;
+				//DataRow dr = UserInfoManager.GetUserInfoByAccount(account);
+				if (currentUser == null)
+				{
+					
+					Response.Redirect("/Login.aspx");
+					return;
+				}
+
+				this.ltlAccount.Text = currentUser.Account;
+				this.ltlName.Text = currentUser.Name;
+				this.ltlEmail.Text = currentUser.Email;
 			}
-			string account = this.Session["UserLoginInfo"] as string;
-			DataRow dr = UserInfoManager.GetUserInfoByAccount(account);
-			if (dr == null)
-			{
-				this.Session["UserLoginInfo"] = null;
-				Response.Redirect("/Login.aspx");
-				return;
-			}
-			this.ltlAccount.Text = dr["Account"].ToString();
-			this.ltlName.Text = dr["Name"].ToString();
-			this.ltlEmail.Text = dr["Email"].ToString();
-		}
+
+	    }
 
 		protected void btnLogout_Click(object sender, EventArgs e)
 		{
-			this.Session["UserLoginInfo"] = null;
+			AuthManagers.Logout();
 			Response.Redirect("/Login.aspx");
 		}
 	}

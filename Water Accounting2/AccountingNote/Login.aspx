@@ -14,7 +14,7 @@
         <br />
         Password:<asp:TextBox ID="txtPwd" runat="server" TextMode="Password"></asp:TextBox><br />
         <asp:Button ID="btnLogin" runat="server" Text="Login" OnClick="btnLogin_Click" />
-            <br/>
+            <br />
         <asp:Literal ID="ltlMsg" runat="server"></asp:Literal>
             </asp:PlaceHolder>
     </form>

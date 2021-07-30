@@ -142,6 +142,10 @@
       <Project>{ce58e37e-f827-4022-b9eb-d6f4f468945a}</Project>
       <Name>AccountingNote.DBSouse</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AuthManager\AuthManager.csproj">
+      <Project>{50daf3be-8451-48e0-ac7b-c18f4aec14ab}</Project>
+      <Name>AuthManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

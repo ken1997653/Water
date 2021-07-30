@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using AccountingNote.DBSouse;
+using AuthManager;
 
 namespace AccountingNote
 {
@@ -32,24 +33,32 @@ namespace AccountingNote
 			string inp_Account = this.txtAccount.Text;
 			string inp_PWD = this.txtPwd.Text;
 
-			if (string.IsNullOrWhiteSpace(inp_Account) || string.IsNullOrWhiteSpace(inp_PWD))
+			string msg;
+
+			if (!AuthManagers.TryLogin(inp_Account, inp_PWD, out msg))
 			{
-				this.ltlMsg.Text = "Account / PWD is required.";
+				this.ltlMsg.Text = msg;
 				return;
 			}
-			DataRow dr = UserInfoManager.GetUserInfoByAccount(inp_Account);
+			Response.Redirect("/SystemAdmin/UserInfo.aspx");
+			//if (string.IsNullOrWhiteSpace(inp_Account) || string.IsNullOrWhiteSpace(inp_PWD))
+			//{
+			//	this.ltlMsg.Text = "Account / PWD is required.";
+			//	return;
+			//}
+			//DataRow dr = UserInfoManager.GetUserInfoByAccount(inp_Account);
 
 
-			if (dr!=null&&string.Compare(dr["PWD"].ToString(),inp_PWD)==0)
-			{
-				this.Session["UserLoginInfo"] = dr["Account"];
-				Response.Redirect("/SystemAdmin/UserInfo.aspx");
-			}
-			else
-			{
-				this.ltlMsg.Text = "Login fail. Plesae check Account/PWD.";
-				return;
-			}
+			//if (dr!=null&&string.Compare(dr["PWD"].ToString(),inp_PWD)==0)
+			//{
+			//	this.Session["UserLoginInfo"] = dr["Account"];
+			//	Response.Redirect("/SystemAdmin/UserInfo.aspx");
+			//}
+			//else
+			//{
+			//	this.ltlMsg.Text = "Login fail. Plesae check Account/PWD.";
+			//	return;
+			//}
 			
 		}
 	}

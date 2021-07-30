@@ -1,4 +1,5 @@
 ﻿using AccountingNote.DBSouse;
+using AuthManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,17 +13,18 @@ namespace AccountingNote.SystemAdmin
 	{
 		protected void Page_Load(object sender, EventArgs e)
 		{
-			if (this.Session["UserLoginInfo"] == null)
+			if (!AuthManagers.IsLogined())
 			{
 				Response.Redirect("/Login.aspx");
 				return;
 			}
+			UserInfoModel currentUser = AuthManagers.GetCurrentUser();
 
-			string account = this.Session["UserLoginInfo"] as string;
-			var drUserInfo = UserInfoManager.GetUserInfoByAccount(account);
-
-			if (drUserInfo == null)
+			//string account = this.Session["UserLoginInfo"] as string;
+			//DataRow dr = UserInfoManager.GetUserInfoByAccount(account);
+			if (currentUser == null)
 			{
+				this.Session["UserLoginInfo"] = null;
 				Response.Redirect("/Login.aspx");
 				return;
 			}
@@ -40,7 +42,7 @@ namespace AccountingNote.SystemAdmin
 					int id;
 					if (int.TryParse(idText, out id))
 					{
-						var drAccounting = AccountingManager.GetAccounting(id,drUserInfo["ID"].ToString());
+						var drAccounting = AccountingManager.GetAccounting(id,currentUser.ID);
 
 						if (drAccounting == null)
 						{
@@ -79,16 +81,19 @@ namespace AccountingNote.SystemAdmin
 				this.ltlMsg.Text = string.Join("<br/>", msgList);
 				return;
 			}
-			string account = this.Session["UserLoginInfo"] as string;
-			var drUserInfo = UserInfoManager.GetUserInfoByAccount(account);
+			//string account = this.Session["UserLoginInfo"] as string;
+			//var drUserInfo = UserInfoManager.GetUserInfoByAccount(account);
 
-			if (drUserInfo == null)
+			UserInfoModel currentUser = AuthManagers.GetCurrentUser();
+
+			if (currentUser == null)
 			{
 				Response.Redirect("/Login.aspx");
 				return;
 			}
 
-			string userID = drUserInfo["ID"].ToString();
+			string userID = currentUser.ID;
+
 			string actTypeText = this.ddlType.SelectedValue;
 			string amountText = this.txtAmount.Text;
 			string caption = this.txtCaption.Text;

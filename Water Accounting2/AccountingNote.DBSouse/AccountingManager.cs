@@ -51,23 +51,20 @@ namespace AccountingNote.DBSouse
 						Loggers.WriteLog(ex.Message);
 						return null;
 					}
-
 				}
-
-
 			}
 		}
 		public static bool UpdateAccounting(int id,string UserID, string Caption, int Amount, int ActType, string Body)
 		{
 			if (Amount < 0 || Amount > 1000000)
 				throw new ArgumentException("Amount must betwrrn 0 and 1,000,000 ");
-			if (ActType != 0 && ActType != 1)
+			if (ActType < 0 || ActType > 1)
 				throw new ArgumentException("ActType must be 0 or 1");
 
 
-			string connectionString = GetConnectionString();
+			string connStr = GetConnectionString();
 			string dbCommandString =
-			@"UPDATE Accounting
+			@"UPDATE [Accounting]
               SET
             UserID = @userId
             ,Caption = @cap
@@ -77,45 +74,38 @@ namespace AccountingNote.DBSouse
             ,Body = @body
 
              WHERE 
-                 ID = @id
-            ";
-			using (SqlConnection connection = new SqlConnection(connectionString))
+                 ID = @id";
+			List<SqlParameter> paramList = new List<SqlParameter>();
+			   paramList.Add(new SqlParameter("@userId", UserID));
+			paramList.Add(new SqlParameter("@cap", Caption));
+			paramList.Add(new SqlParameter("@amount", Amount));
+			paramList.Add(new SqlParameter("@type", ActType));
+			paramList.Add(new SqlParameter("@createDate", DateTime.Now));
+			paramList.Add(new SqlParameter("@body", Body));
+			paramList.Add(new SqlParameter("@id", id));
+
+
+			try
 			{
-				using (SqlCommand command = new SqlCommand(dbCommandString, connection))
-				{
-					command.Parameters.AddWithValue("@userId", UserID);
-					command.Parameters.AddWithValue("@cap", Caption);
-					command.Parameters.AddWithValue("@amount", Amount);
-					command.Parameters.AddWithValue("@type", ActType);
-					command.Parameters.AddWithValue("@createDate", DateTime.Now);
-					command.Parameters.AddWithValue("@body", Body);
-					command.Parameters.AddWithValue("@id", id);
-					try
-					{
-
-						connection.Open();
-						int affect = command.ExecuteNonQuery();
-						if (affect == 0)
-							return false;
-						else
-							return true;
-						//command.ExecuteNonQuery();
+				int affect = DBHelper.ModifyData(connStr,dbCommandString,paramList);
 
 
-					}
-					catch (Exception ex)
-					{
+				if (affect == 1)
+					return true;
+				else
+					return false;
+				//command.ExecuteNonQuery();
 
-						Loggers.WriteLog(ex.Message);
-						return false;
-					}
-				}
+
 			}
+			catch (Exception ex)
+			{
+
+				Loggers.WriteLog(ex.Message);
+				return false;
+			}
+			    
 		}
-
-
-
-
 
 		public static void CreateAccounting(string UserID, string Caption, int Amount, int ActType, string Body)
 		{
@@ -207,52 +197,27 @@ namespace AccountingNote.DBSouse
 
 			}
 		}
-		public static bool DeleteAccounting(int id)
+		public static void DeleteAccounting(int id)
 		{
-			string connStr = GetConnectionString();
+			string connStr = DBHelper.GetConnectionString();
 			string DBCommand =
-				$@" DELETE FROM Accounting
-                   WHERE ID = @id
-              
-                   ";
-			using (SqlConnection conn = new SqlConnection(connStr))
+				$@" DELETE  [Accounting]
+                   WHERE ID = @id";
+			List<SqlParameter> paramList = new List<SqlParameter>();
+			paramList.Add(new SqlParameter("@id", id));
+		
+			try
 			{
-				using (SqlCommand comm = new SqlCommand(DBCommand, conn))
-				{
-					comm.Parameters.AddWithValue("@id", id);
 
-					try
-					{
-						conn.Open();
-						int affect = comm.ExecuteNonQuery();
-						if (affect == 0)
-							return false;
-						else
-							return true;
-
-					}
-					catch (Exception ex)
-					{
-						Loggers.WriteLog(ex.Message);
-						return false;
-					}
-
-
-
-
-
-				}
-
-
+		     DBHelper.ModifyData(connStr, DBCommand, paramList);
+						
+			}
+			catch (Exception ex)
+			{
+						
+		     Loggers.WriteLog(ex.Message);
+						
 			}
 		}
-
-
-
-
-
-
-
 	}
-
 }
